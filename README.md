@@ -1,6 +1,6 @@
 # geo-pipeline 🌍
 
-![CI](https://github.com/YOURUSERNAME/geo-pipeline/actions/workflows/ci.yml/badge.svg?branch=main)
+![CI](https://github.com/lorenzo314/geo-pipeline/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![Dask](https://img.shields.io/badge/dask-distributed-orange)
 ![Rasterio](https://img.shields.io/badge/rasterio-geospatial-green)
