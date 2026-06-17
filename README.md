@@ -90,6 +90,24 @@ docker compose up
 # query results
 docker compose --profile serve up serve
 ```
+
+Results are printed to stdout — the same tables as `python run.py --serve-only`:
+
+global_min  global_mean  global_max     avg_std
+
+0       -15.0   719.021019      4017.0  627.083209
+
+The `./data` directory is mounted as a volume, so processed files are accessible
+on your host machine even after the container exits:
+
+```bash
+ls data/processed/       # Zarr store + Parquet files
+python run.py --serve-only   # query without Docker
+```
+
+> **Note:** run the `pipeline` service before `serve` — the serve container
+> reads the Parquet files written by the pipeline.
+
 ---
 
 ## Usage
