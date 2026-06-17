@@ -8,95 +8,148 @@
 ![Zarr](https://img.shields.io/badge/format-Zarr%20%7C%20GeoTIFF%20%7C%20Parquet-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A **laptop-scale** geospatial data pipeline that mirrors a production
-architecture — same code, smaller data, zero cloud infra.
+A **laptop-scale** geospatial data pipeline that mirrors a production architecture — same code, smaller data, zero cloud infra.
+
+Ingests satellite elevation data (SRTM GeoTIFF), reprojects and rechunks it into a Zarr store, validates it, and serves summary statistics via DuckDB — all orchestrated with a single command.
+
+---
 
 ## Architecture
 
 ```
-Sources (GeoTIFF / Zarr / APIs / DB)
-        │
-        ▼
-   Data lake (local filesystem — swap for S3 in prod)
-        │
-        ▼
-  Prefect flow  ──►  Dask LocalCluster
-        │               (4 workers, same API as KubeCluster)
-        ▼
-  Transform tasks
-   ├── reproject → EPSG:4326
-   ├── rechunk   → 256×256 spatial tiles
-   └── validate  → null fraction, CRS, extent
-        │
-        ▼
-  Serving
-   ├── Zarr store   (N-D array access)
-   └── Parquet      (DuckDB analytics)
+Sources
+  ├── Object store (GeoTIFF, Zarr)
+  ├── REST / OGC APIs (STAC, WFS)
+  ├── Databases (PostGIS)
+  └── Compressed archives (.zip, .tar.gz)
+         │
+         ▼
+   Raw zone (local filesystem → S3 in production)
+   Immutable files, MD5-checksummed, partitioned by source
+         │
+         ▼
+   Dask LocalCluster (4 workers)
+   ├── Ingest    — download, decompress, checksum (idempotent)
+   ├── Transform — reproject → EPSG:4326, rechunk → Zarr
+   └── Validate  — null fraction, CRS, spatial extent, infinities
+         │
+         ▼
+   Serving
+   ├── Zarr store   — chunked N-D array access (xarray / ML)
+   └── Parquet      — columnar analytics via DuckDB
 ```
+
+## Key design choices
+
+| Concern | Choice | Why |
+|---|---|---|
+| Array compute | Dask | Native xarray/rioxarray integration; no JVM |
+| Array format | Zarr | Chunk-level reads; Dask-native; N-D |
+| Analytics | DuckDB | In-process SQL on Parquet; zero infra |
+| Idempotency | MD5 checksums + `mode="w"` | Safe reruns, no silent duplicates |
+| Testability | Pure functions on `xr.DataArray` | Synthetic 4×4 tiles in tests, no network |
+
+---
 
 ## Quickstart
 
 ```bash
-# 1 — install
+# 1 — clone
+git clone git@github.com:lorenzo314/geo-pipeline.git
+cd geo-pipeline
+
+# 2 — create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate         # Windows
+
+# 3 — install
 pip install -e ".[dev]"
 
-# 2 — run tests (no network needed — synthetic data)
+# 4 — activate pre-commit hooks
+pre-commit install
+
+# 5 — run tests (no network needed — synthetic data)
 make test
 
-# 3 — run the full pipeline (~25 MB SRTM tile download)
+# 6 — run the full pipeline (~25 MB SRTM download, central France)
 make run
 
-# 4 — query results
+# 7 — query results
 make serve
 ```
+
+---
+
+## Usage
+
+```bash
+python run.py                        # default SRTM tile (France)
+python run.py --url https://...      # custom GeoTIFF zip
+python run.py --workers 2            # fewer workers on low-RAM machines
+python run.py --serve                # run pipeline then show DuckDB results
+python run.py --serve-only           # query already-processed data
+python run.py --help
+```
+
+---
 
 ## Project layout
 
 ```
-src/
-  config.py      — paths, chunk sizes, thresholds
-  ingest.py      — download + decompress (idempotent)
-  transform.py   — reproject, rechunk, Zarr + Parquet output
-  validate.py    — data-quality checks
-  serve.py       — DuckDB query helpers
-
-flows/
-  pipeline.py    — Prefect flow wiring all tasks
-
-tests/
-  test_transform.py   — unit tests (synthetic 4×4 tiles)
+geo-pipeline/
+├── src/
+│   ├── config.py      — paths, chunk sizes, thresholds
+│   ├── ingest.py      — download + decompress (idempotent, checksummed)
+│   ├── transform.py   — reproject, rechunk, Zarr + Parquet output
+│   ├── validate.py    — 6 data-quality checks
+│   └── serve.py       — DuckDB query helpers
+├── tests/
+│   └── test_transform.py   — unit tests (synthetic 4×4 tiles, no network)
+├── .github/
+│   └── workflows/
+│       └── ci.yml     — lint + test on every push
+├── run.py             — single entry point
+├── Makefile           — common dev tasks
+└── pyproject.toml     — dependencies + tooling config
 ```
+
+---
 
 ## Scaling to production
 
 | Change | What to modify |
 |---|---|
 | Object store (S3/GCS) | `RAW_DIR` / `OUT_DIR` in `config.py` → `s3://…` |
-| Distributed cluster | `LocalCluster()` → `KubeCluster()` in `pipeline.py` |
-| Scheduling | `make prefect-start`, then `prefect deploy` |
+| Distributed cluster | `LocalCluster()` → `KubeCluster()` in `run.py` |
+| Orchestration | Wrap stage functions in Prefect / Dagster tasks |
 | Larger datasets | Increase `CHUNK_X/Y` and `DASK_WORKERS` in `config.py` |
-| CI/CD | Add `.github/workflows/ci.yml` calling `make lint test` |
+
+---
 
 ## Data source
 
-Default: **SRTM 90m elevation** tile (central France, ~25 MB zip, no auth).
+Default: **SRTM 90m elevation** tile covering central France (~25 MB zip, no authentication needed).
 
-To use your own GeoTIFF:
+Sample output on a 12.5 M pixel tile:
+
+| metric | value |
+|---|---|
+| min elevation | -15 m |
+| mean elevation | 719 m |
+| max elevation | 4017 m (Alps) |
+| std | 627 m |
+
+---
+
+## Development
+
 ```bash
-make run-url URL=https://example.com/your_file.zip
-# or
-PYTHONPATH=src python flows/pipeline.py https://example.com/your_file.zip
+make test        # run test suite
+make lint        # ruff check
+make run         # full pipeline
+make serve       # DuckDB query results
+make clean       # remove processed data
 ```
 
-## Running with the Prefect UI
-
-```bash
-# Terminal 1
-make prefect-start
-
-# Terminal 2
-prefect deploy flows/pipeline.py:geo_pipeline --name laptop
-prefect worker start --pool default-agent-pool
-```
-
-Then open http://localhost:4200 to see runs, logs, and retries.
+Pre-commit hooks run `ruff` automatically on every commit.
