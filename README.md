@@ -81,6 +81,17 @@ make serve
 
 ---
 
+## Docker
+
+```bash
+# build and run the pipeline
+docker compose up
+
+# query results
+docker compose --profile serve up serve
+```
+---
+
 ## Usage
 
 ```bash
