@@ -1,0 +1,16 @@
+services:
+  pipeline:
+    build: .
+    volumes:
+      - ./data:/app/data        # persist downloads and processed output
+      - ./.env:/app/.env        # optional credentials
+    command: python run.py
+    environment:
+      - PYTHONUNBUFFERED=1      # stream logs to terminal in real time
+
+  serve:
+    build: .
+    volumes:
+      - ./data:/app/data
+    command: python run.py --serve-only
+    profiles: ["serve"]         # only runs with: docker compose --profile serve up
