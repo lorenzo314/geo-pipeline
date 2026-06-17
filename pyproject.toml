@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geo-pipeline"
+version = "0.1.0"
+description = "Baby geospatial data pipeline — laptop edition"
+requires-python = ">=3.10"
+dependencies = [
+    "prefect>=2.19",
+    "dask[distributed]>=2024.4",
+    "xarray>=2024.3",
+    "rioxarray>=0.15",
+    "rasterio>=1.3",
+    "zarr>=2.17",
+    "pyarrow>=15",
+    "duckdb>=0.10",
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "httpx>=0.27",          # nicer downloads than urllib
+    "rich>=13",             # pretty CLI output
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "coverage>=7",
+    "ruff>=0.4",
+]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

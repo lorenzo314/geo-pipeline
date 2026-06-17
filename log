@@ -1,0 +1,195 @@
+PYTHONPATH=src python flows/pipeline.py
+17:31:08.369 | INFO    | prefect - Starting temporary server on http://127.0.0.1:8742
+See https://docs.prefect.io/v3/concepts/server#how-to-guides for more information on running a dedicated Prefect server.
+17:31:11.799 | ERROR   | prefect.server - Encountered exception in request:
+Traceback (most recent call last):
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/server/api/server.py", line 529, in default_content_type
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/gzip.py", line 29, in __call__
+    await responder(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/gzip.py", line 130, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/gzip.py", line 46, in __call__
+    await self.app(scope, receive, self.send_with_compression)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 677, in app
+    match, child_scope = route.matches(scope)
+                         ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1600, in matches
+    match, _ = self.original_router.matches(scope)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2057, in matches
+    match, child_scope, _, _ = included_router._match(scope)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1561, in _match
+    for candidate in self.effective_candidates():
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1467, in effective_candidates
+    routes_version = self.original_router._get_routes_version()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1992, in _get_routes_version
+    for route in self.routes:
+                 ^^^^^^^^^^^
+AttributeError: 'PrefectRouter' object has no attribute 'routes'. Did you mean: 'route'?
+Traceback (most recent call last):
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/client/orchestration/__init__.py", line 1523, in raise_for_api_version_mismatch
+    api_version = self.api_version()
+                  ^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/client/orchestration/__init__.py", line 1479, in api_version
+    res = self._client.get("/admin/version")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/httpx/_client.py", line 1053, in get
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/client/base.py", line 677, in send
+    response.raise_for_status()
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/client/base.py", line 164, in raise_for_status
+    raise PrefectHTTPStatusError.from_httpx_error(exc) from exc.__cause__
+prefect.exceptions.PrefectHTTPStatusError: Server error '500 Internal Server Error' for url 'http://127.0.0.1:8742/api/admin/version' - Response: {'exception_message': 'Internal Server Error'} - For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lorenzo/geo-pipeline/flows/pipeline.py", line 123, in <module>
+    geo_pipeline(url=url)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/flows.py", line 1882, in __call__
+    return run_flow(
+           ^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/flow_engine.py", line 2191, in run_flow
+    ret_val = run_flow_sync(**kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/flow_engine.py", line 2031, in run_flow_sync
+    with engine.start():
+  File "/usr/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/flow_engine.py", line 1261, in start
+    with self.initialize_run():
+  File "/usr/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/flow_engine.py", line 1163, in initialize_run
+    with SyncClientContext.get_or_create() as client_ctx:
+  File "/usr/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/context.py", line 338, in get_or_create
+    with cls() as ctx:
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/context.py", line 320, in __enter__
+    self.client.raise_for_api_version_mismatch_once()
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/client/orchestration/__init__.py", line 1514, in raise_for_api_version_mismatch_once
+    self.raise_for_api_version_mismatch()
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/client/orchestration/__init__.py", line 1527, in raise_for_api_version_mismatch
+    raise RuntimeError(
+RuntimeError: Failed to reach API at http://127.0.0.1:8742/api/
+17:31:11.812 | INFO    | prefect - Stopping temporary server on http://127.0.0.1:8742
+17:31:11.809 | ERROR   | uvicorn.error - Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/server/api/server.py", line 292, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 448, in handle
+    await self.app(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/prefect/server/api/server.py", line 529, in default_content_type
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/gzip.py", line 29, in __call__
+    await responder(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/gzip.py", line 130, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/gzip.py", line 46, in __call__
+    await self.app(scope, receive, self.send_with_compression)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/starlette/routing.py", line 677, in app
+    match, child_scope = route.matches(scope)
+                         ^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1600, in matches
+    match, _ = self.original_router.matches(scope)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 2057, in matches
+    match, child_scope, _, _ = included_router._match(scope)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1561, in _match
+    for candidate in self.effective_candidates():
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1467, in effective_candidates
+    routes_version = self.original_router._get_routes_version()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lorenzo/geo-pipeline/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 1992, in _get_routes_version
+    for route in self.routes:
+                 ^^^^^^^^^^^
+AttributeError: 'PrefectRouter' object has no attribute 'routes'. Did you mean: 'route'?
+make: *** [Makefile:20: run] Error 1

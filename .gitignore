@@ -1,0 +1,27 @@
+# credentials: never commit
+.env
+
+# data — ignore contents but keep folder structure via .gitkeep
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+
+# tools
+.prefect/
+.coverage
+htmlcov/
+.ruff_cache/
+.pytest_cache/
+
+# environment
+.venv/
+
+# pipeline artefacts
+*.md5
