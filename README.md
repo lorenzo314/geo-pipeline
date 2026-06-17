@@ -93,9 +93,11 @@ docker compose --profile serve up serve
 
 Results are printed to stdout — the same tables as `python run.py --serve-only`:
 
-global_min  global_mean  global_max     avg_std
+```
+global_min      global_mean     global_max      avg_std
 
-0       -15.0   719.021019      4017.0  627.083209
+-15.0           719.021019      4017.0          627.083209
+```
 
 The `./data` directory is mounted as a volume, so processed files are accessible
 on your host machine even after the container exits:
