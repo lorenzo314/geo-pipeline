@@ -1,5 +1,13 @@
 # geo-pipeline 🌍
 
+![CI](https://github.com/lorenzo314/geo-pipeline/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![Dask](https://img.shields.io/badge/dask-distributed-orange)
+![Rasterio](https://img.shields.io/badge/rasterio-geospatial-green)
+![DuckDB](https://img.shields.io/badge/DuckDB-analytics-yellow)
+![Zarr](https://img.shields.io/badge/format-Zarr%20%7C%20GeoTIFF%20%7C%20Parquet-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 A **laptop-scale** geospatial data pipeline that mirrors a production
 architecture — same code, smaller data, zero cloud infra.
 
